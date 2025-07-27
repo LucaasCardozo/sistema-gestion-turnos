@@ -99,9 +99,9 @@ public ResponseEntity<?> obtenerContactoEmpleado(@PathVariable Long id) {
                              .body(Map.of("mensaje", "El cliente no tiene información de contacto registrada."));
     }
         Contacto contactoExistente = cliente.getContacto();
-        contactoExistente.setTelefono(contactoDTO.getTelefono());
-        contactoExistente.setEmail(contactoDTO.getEmail());
-        contactoExistente.setDireccion(contactoDTO.getDireccion());
+        contactoExistente.setTelefono(contactoDTO.telefono());
+        contactoExistente.setEmail(contactoDTO.email());
+        contactoExistente.setDireccion(contactoDTO.direccion());
         try {
             Contacto contactoActualizado = contactoService.guardarContacto(contactoExistente);
             if (contactoActualizado == null) {
@@ -132,9 +132,9 @@ public ResponseEntity<?> obtenerContactoEmpleado(@PathVariable Long id) {
                              .body(Map.of("mensaje", "El empleado no tiene información de contacto registrada."));
          }
         Contacto contactoExistente = empleado.getContacto();
-        contactoExistente.setTelefono(contactoDTO.getTelefono());
-        contactoExistente.setEmail(contactoDTO.getEmail());
-        contactoExistente.setDireccion(contactoDTO.getDireccion());
+        contactoExistente.setTelefono(contactoDTO.telefono());
+        contactoExistente.setEmail(contactoDTO.email());
+        contactoExistente.setDireccion(contactoDTO.direccion());
         try {
             Contacto contactoActualizado = contactoService.guardarContacto(contactoExistente);
             if (contactoActualizado == null) {
@@ -153,39 +153,52 @@ public ResponseEntity<?> obtenerContactoEmpleado(@PathVariable Long id) {
     
     //asociar contacto a una persona
     @PostMapping("/guardar")
-    public ResponseEntity<?> guardarContacto(
-            @RequestParam Long personaId,
-            @RequestBody @Valid ContactoDTO contactoDTO) {
+public ResponseEntity<?> guardarContacto(
+        @RequestParam Long personaId,
+        @RequestBody @Valid ContactoDTO contactoDTO) {
 
-        try {
-            Persona persona = personaService.obtenerPorId(personaId);
-            if (persona == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("mensaje", "Persona no encontrada"));
-            }
-
-            Contacto contacto = new Contacto(contactoDTO.getEmail(), contactoDTO.getTelefono(), contactoDTO.getDireccion());
-            contactoService.guardarContacto(contacto);
-
-            if (persona instanceof Cliente cliente) {
-                cliente.setContacto(contacto);
-                clienteService.guardarCliente(cliente);
-                return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(Map.of("mensaje", "✔️ Contacto guardado y asociado al cliente"));
-            } else if (persona instanceof Empleado empleado) {
-                empleado.setContacto(contacto);
-                empleadoService.guardarEmpleado(empleado);
-                return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(Map.of("mensaje", "✔️ Contacto guardado y asociado al empleado"));
-            }
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensaje", "La persona no es Cliente ni Empleado"));
-
-        } catch (ExcepcionContacto e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", e.getMessage()));
+    try {
+        Persona persona = personaService.obtenerPorId(personaId);
+        if (persona == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("mensaje", "Persona no encontrada"));
         }
-    }
 
+        // Verificamos si la persona ya tiene un contacto asociado
+        Contacto contactoExistente = null;
+
+        if (persona instanceof Cliente cliente) {
+            contactoExistente = cliente.getContacto();
+        } else if (persona instanceof Empleado empleado) {
+            contactoExistente = empleado.getContacto();
+        }
+
+        if (contactoExistente != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("mensaje", "Esta persona ya tiene un contacto asociado, puede modificarlo en la opción correspondiente."));
+        }
+
+        Contacto contactoNuevo = new Contacto(contactoDTO.email(), contactoDTO.telefono(), contactoDTO.direccion());
+        contactoService.guardarContacto(contactoNuevo);
+
+        if (persona instanceof Cliente cliente) {
+            cliente.setContacto(contactoNuevo);
+            clienteService.guardarCliente(cliente);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("mensaje", "✔️ Contacto guardado y asociado al cliente"));
+        } else if (persona instanceof Empleado empleado) {
+            empleado.setContacto(contactoNuevo);
+            empleadoService.guardarEmpleado(empleado);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("mensaje", "✔️ Contacto guardado y asociado al empleado"));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("mensaje", "La persona no es Cliente ni Empleado"));
+
+    } catch (ExcepcionContacto e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", e.getMessage()));
+    }
+}
 }
