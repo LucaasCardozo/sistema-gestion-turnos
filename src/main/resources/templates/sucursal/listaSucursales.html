@@ -366,33 +366,32 @@
             </tbody>
         </table>
         <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        // Desvanecer mensajes
-        const mensajes = document.querySelectorAll('.alert');
-        mensajes.forEach(msg => {
-            setTimeout(() => {
-                msg.classList.add('fade-out');
-                msg.addEventListener('animationend', () => {
-                    msg.remove();
+            window.addEventListener('DOMContentLoaded', () => {
+                // Desvanecer mensajes
+                const mensajes = document.querySelectorAll('.alert');
+                mensajes.forEach(msg => {
+                    setTimeout(() => {
+                        msg.classList.add('fade-out');
+                        msg.addEventListener('animationend', () => {
+                            msg.remove();
+                        });
+                    }, 4000);
                 });
-            }, 4000);
-        });
 
-        // 🔥 Cargar sucursales vía Fetch
-        fetch('/api/sucursales')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al obtener sucursales');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const tbody = document.getElementById('sucursales-body');
-                tbody.innerHTML = '';
+                fetch('/api/sucursales')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener sucursales');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const tbody = document.getElementById('sucursales-body');
+                        tbody.innerHTML = '';
 
-                data.forEach(sucursal => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+                        data.forEach(sucursal => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
                         <td>${sucursal.nombre || 'Sin nombre'}</td>
                         <td>${sucursal.direccion || 'Sin dirección'}</td>
                         <td>${sucursal.telefono || 'Sin teléfono'}</td>
@@ -420,22 +419,22 @@
                             </div>
                         </td>
                     `;
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(err => {
-                console.error('Error al cargar sucursales:', err);
-                const tbody = document.getElementById('sucursales-body');
-                tbody.innerHTML = `
+                            tbody.appendChild(tr);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error al cargar sucursales:', err);
+                        const tbody = document.getElementById('sucursales-body');
+                        tbody.innerHTML = `
                     <tr>
                         <td colspan="6" style="text-align: center; color: red;">
                             No se pudieron cargar las sucursales.
                         </td>
                     </tr>
                 `;
+                    });
             });
-    });
-</script>
+        </script>
 
     </main>
     <footer>

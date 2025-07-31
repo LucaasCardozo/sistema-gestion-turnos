@@ -166,26 +166,34 @@ public class TurnoController {
             throw new ExcepcionTurno("Debe seleccionar un día.");
         }
 
+        // Recuperamos la versión completa del día desde la base de datos
         Dia diaCompleto = diaService.buscarPorId(turno.getDia().getId());
         if (diaCompleto == null) {
             throw new ExcepcionTurno("El día seleccionado no existe.");
         }
+
+        // Recuperamos la versión completa de servicio desde la base de datos
+        Servicio servicioCompleto = servicioRepository.findById(turno.getServicio().getIdServicio())
+                .orElseThrow(() -> new ExcepcionTurno("Servicio no encontrado"));
+        // Formateamos la fecha
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaFormateada = diaCompleto.getFecha().format(formatter);
         if (turnoService.existeTurno(diaCompleto, turno.getHora(), turno.getSucursal())) {
             throw new ExcepcionTurno(
-                    "Ya existe un turno para el dia: " + diaCompleto.getFecha() + " a la hora: " + turno.getHora()
-                            + " en la sucursal: " + diaCompleto.getSucursal().getNombre());
+                    "Ya hay un turno reservado para '" + servicioCompleto.getNombre()
+                            + "' el día " + fechaFormateada
+                            + " a las " + turno.getHora()
+                            + " hs en la sucursal '" + diaCompleto.getSucursal().getNombre()
+                            + "'. Por favor, elija otro horario o día disponible.");
         }
 
         turno.setDia(diaCompleto);
         turnoService.guardar(turno);
-
-        // Recuperamos versiones completas de servicio, empleado, cliente y sucursal
-        // desde la base de datos, ya que los objetos recibidos pueden estar incompletos
-        // (solo con el ID cargado).
-        Servicio servicioCompleto = servicioRepository.findById(turno.getServicio().getIdServicio())
-                .orElseThrow(() -> new ExcepcionTurno("Servicio no encontrado"));
         turno.setServicio(servicioCompleto);
 
+        // Recuperamos versiones completas de empleado, cliente y sucursal desde
+        // la base de datos, ya que los objetos recibidos pueden estar incompletos
+        // (solo con el ID cargado).
         Empleado empleadoCompleto = empleadoRepository.findById(turno.getEmpleado().getIdPersona())
                 .orElseThrow(() -> new ExcepcionTurno("Empleado no encontrado"));
         turno.setEmpleado(empleadoCompleto);
@@ -204,8 +212,6 @@ public class TurnoController {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("nombreCliente", clienteCompleto.getNombre());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String fechaFormateada = diaCompleto.getFecha().format(formatter);
         variables.put("fecha", fechaFormateada);
         variables.put("hora", turno.getHora());
         variables.put("servicio", turno.getServicio().getNombre());
@@ -228,7 +234,7 @@ public class TurnoController {
     public String eliminarTurno(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         System.out.println("ID a eliminar: " + id);
         turnoService.eliminarPorId(id);
-        redirectAttributes.addFlashAttribute("mensajeExito", "✅ Turno eliminado correctamente.");
+        redirectAttributes.addFlashAttribute("mensajeExito", "✔️ Turno eliminado correctamente.");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getAuthorities().stream().anyMatch(

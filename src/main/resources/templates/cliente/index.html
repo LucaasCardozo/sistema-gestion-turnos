@@ -133,9 +133,9 @@
         }
 
         .alert {
-            padding: 10px 16px;
+            padding: 6px 12px;
             position: fixed;
-            top: 120px;
+            top: 110px;
             right: 40px;
             z-index: 9999;
             min-width: 220px;
@@ -158,6 +158,22 @@
             background-color: #ffe1e1;
             color: #a52222;
             border: 1px solid #ffbaba;
+        }
+
+        @keyframes fadeOutUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .alert.fade-out {
+            animation: fadeOutUp 0.8s forwards;
         }
 
         table {
@@ -295,7 +311,7 @@
             width: 90%;
             display: flex;
             justify-content: flex-end;
-            margin: 0px auto 10px auto;
+            margin: 5px auto 5px auto;
         }
 
         .usuario-nombre {
@@ -367,7 +383,20 @@
                 </tr>
             </tbody>
         </table>
-
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                // Desvanecer mensajes
+                const mensajes = document.querySelectorAll('.alert');
+                mensajes.forEach(msg => {
+                    setTimeout(() => {
+                        msg.classList.add('fade-out');
+                        msg.addEventListener('animationend', () => {
+                            msg.remove();
+                        });
+                    }, 4000);
+                });
+            });
+        </script>
         </main>
     </div>
 

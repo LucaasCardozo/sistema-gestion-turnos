@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,9 +44,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExcepcionTurno.class)
-    public String manejarExcepcionTurno(ExcepcionTurno ex, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("error", ex.getMessage());
-        return "redirect:/turno/formularioTurno"; //
+    public String manejarExcepcionTurno(ExcepcionTurno ex, RedirectAttributes redirectAttributes,
+            Authentication authentication) {
+        String userType = authentication.getAuthorities().iterator().next().getAuthority();
+        if ("ROLE_CLIENTE".equalsIgnoreCase(userType)) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/turno/formularioTurnoCliente";
+        } else {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/turno/formularioTurno";
+        }
     }
 
     @ExceptionHandler(ExcepcionServicioNombre.class)

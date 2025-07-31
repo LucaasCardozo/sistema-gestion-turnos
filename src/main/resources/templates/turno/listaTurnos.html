@@ -133,9 +133,9 @@
         }
 
         .alert {
-            padding: 10px 16px;
+            padding: 6px 12px;
             position: fixed;
-            top: 120px;
+            top: 110px;
             right: 40px;
             z-index: 9999;
             min-width: 220px;
@@ -160,9 +160,25 @@
             border: 1px solid #ffbaba;
         }
 
+        @keyframes fadeOutUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .alert.fade-out {
+            animation: fadeOutUp 0.8s forwards;
+        }
+
         table {
             width: 90%;
-            margin: 40px auto;
+            margin: 10px auto;
             border-collapse: separate;
             border-spacing: 0;
             background-color: white;
@@ -313,7 +329,10 @@
         }
 
         .nuevo-turno-der {
-            flex-shrink: 0;
+            width: 90%;
+            display: flex;
+            justify-content: flex-end;
+            margin: 10px auto 0px auto;
         }
     </style>
 </head>
@@ -404,7 +423,20 @@
 
         </main>
     </div>
-
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // Desvanecer mensajes
+            const mensajes = document.querySelectorAll('.alert');
+            mensajes.forEach(msg => {
+                setTimeout(() => {
+                    msg.classList.add('fade-out');
+                    msg.addEventListener('animationend', () => {
+                        msg.remove();
+                    });
+                }, 4000);
+            });
+        });
+    </script>
     <footer>
         © 2025 Sistema de Turnos. Todos los derechos reservados.
     </footer>
