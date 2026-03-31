@@ -4,6 +4,14 @@
 Aplicación web para la gestión genérica de turnos, que permite administrar clientes, empleados, sucursales y servicios de manera eficiente.
 </p>
 
+<h2>Demo</h2>
+<p>
+<a href="https://drive.google.com/file/d/1CX-Hr-j7I-ZoxCaizOEOn7_mQvrGdS4n/view?usp=drive_link">Ver demostración general del sistema</a>
+</p>
+<p>
+<a href="https://drive.google.com/drive/folders/1V3AxVnhU5V6A9YANPLzf4IH6dqTN-66j?usp=sharing">Ver mejoras y funcionalidades agregadas</a>
+</p>
+
 <h2>Funcionalidades</h2>
 <ul>
   <li>Gestión de turnos (alta, baja y modificación)</li>
