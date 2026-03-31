@@ -4,6 +4,10 @@
 Aplicación web para la gestión genérica de turnos, que permite administrar clientes, empleados, sucursales y servicios de manera eficiente.
 </p>
 
+<p>
+Proyecto desarrollado como parte de mi formación en desarrollo web Full Stack.
+</p>
+
 <h2>Demo</h2>
 <p>
 <a href="https://drive.google.com/file/d/1kOnJD7wS8WQiT2grFmCxO7OjvgCB4Mde/view?usp=drive_link">Ver demostración general del sistema</a>
